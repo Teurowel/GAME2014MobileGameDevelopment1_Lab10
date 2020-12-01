@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
+//using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,6 +24,7 @@ public class PlayerBehaviour : MonoBehaviour
     public LayerMask collisionWallLayer;
     public RampDirection rampDirection;
     public bool onRamp;
+    public float rampForceSensitivity;
 
     [Header("Player Abilities")] 
     public int health;
@@ -31,10 +32,16 @@ public class PlayerBehaviour : MonoBehaviour
     public BarController healthBar;
     public Animator livesHUD;
 
+    [Header("Audio")]
+    public AudioSource jumpSound;
+    public AudioSource[] hitSounds;
+    public AudioSource dieSound;
+
     private Rigidbody2D m_rigidBody2D;
     private SpriteRenderer m_spriteRenderer;
     private Animator m_animator;
     private RaycastHit2D groundHit;
+    private ParticleSystem m_dustTrail;
 
     // Start is called before the first frame update
     void Start()
@@ -45,6 +52,7 @@ public class PlayerBehaviour : MonoBehaviour
         m_rigidBody2D = GetComponent<Rigidbody2D>();
         m_spriteRenderer = GetComponent<SpriteRenderer>();
         m_animator = GetComponent<Animator>();
+        m_dustTrail = GetComponentInChildren<ParticleSystem>();
     }
 
     // Update is called once per frame
@@ -116,15 +124,17 @@ public class PlayerBehaviour : MonoBehaviour
                     transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                     if (onRamp && rampDirection == RampDirection.UP)
                     {
-                        m_rigidBody2D.AddForce(Vector2.up * horizontalForce * 0.5f * Time.deltaTime);
+                        m_rigidBody2D.AddForce(Vector2.up * horizontalForce * rampForceSensitivity * Time.deltaTime);
                     }
                     else if (onRamp && rampDirection == RampDirection.DOWN)
                     {
-                        m_rigidBody2D.AddForce(Vector2.down * horizontalForce * 0.5f * Time.deltaTime);
+                        m_rigidBody2D.AddForce(Vector2.down * horizontalForce * rampForceSensitivity * Time.deltaTime);
                     }
 
 
                     m_animator.SetInteger("AnimState", (int)PlayerAnimationType.RUN);
+
+                    CreateDustTrail();
                 }
                 else if (joystick.Horizontal < -joystickHorizontalSensitivity)
                 {
@@ -141,6 +151,8 @@ public class PlayerBehaviour : MonoBehaviour
                     }
 
                     m_animator.SetInteger("AnimState", (int)PlayerAnimationType.RUN);
+
+                    CreateDustTrail();
                 }
                 else
                 {
@@ -154,6 +166,9 @@ public class PlayerBehaviour : MonoBehaviour
                 m_rigidBody2D.AddForce(Vector2.up * verticalForce);
                 m_animator.SetInteger("AnimState", (int) PlayerAnimationType.JUMP);
                 isJumping = true;
+
+                jumpSound.Play(); //impulse sound
+                CreateDustTrail();
             }
             else
             {
@@ -195,11 +210,21 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage(15);
+        }
+    }
+
     public void LoseLife()
     {
         lives -= 1;
 
         livesHUD.SetInteger("LivesState", lives);
+
+        dieSound.Play();
 
         if (lives > 0)
         {
@@ -219,9 +244,25 @@ public class PlayerBehaviour : MonoBehaviour
         health -= damage;
         healthBar.SetValue(health);
 
+        //play hit sound here
+        PlayHitSound();
+
         if (health <= 0)
         {
             LoseLife();
         }
+    }
+
+    private void CreateDustTrail()
+    {
+        m_dustTrail.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+
+        m_dustTrail.Play();
+    }
+
+    private void PlayHitSound()
+    {
+        var randomHitSound = hitSounds[Random.Range(0, 3)];
+        randomHitSound.Play();
     }
 }
