@@ -3,6 +3,7 @@ using System.Collections.Generic;
 //using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Cinemachine;
 
 public class PlayerBehaviour : MonoBehaviour
 {
@@ -37,6 +38,14 @@ public class PlayerBehaviour : MonoBehaviour
     public AudioSource[] hitSounds;
     public AudioSource dieSound;
 
+    [Header("Special FX")]
+    public CinemachineVirtualCamera vcam1;
+    public CinemachineBasicMultiChannelPerlin perlin;
+    public float maxShakeTime;
+    public float shakeTimer;
+    public float shakeIntensity;
+    public bool isCameraShaking = false;
+
     private Rigidbody2D m_rigidBody2D;
     private SpriteRenderer m_spriteRenderer;
     private Animator m_animator;
@@ -48,11 +57,18 @@ public class PlayerBehaviour : MonoBehaviour
     {
         health = 100;
         lives = 3;
+        maxShakeTime = 0.3f;
+
+        shakeTimer = maxShakeTime;
 
         m_rigidBody2D = GetComponent<Rigidbody2D>();
         m_spriteRenderer = GetComponent<SpriteRenderer>();
         m_animator = GetComponent<Animator>();
         m_dustTrail = GetComponentInChildren<ParticleSystem>();
+
+        //for screen shake
+        vcam1 = FindObjectOfType<CinemachineVirtualCamera>();
+        perlin = vcam1.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
     }
 
     // Update is called once per frame
@@ -61,6 +77,18 @@ public class PlayerBehaviour : MonoBehaviour
         _LookInFront();
         _LookAhead();
         _Move();
+
+        if(isCameraShaking == true)
+        {
+            shakeTimer -= Time.deltaTime;
+
+            if(shakeTimer <= 0.0f)
+            {
+                perlin.m_AmplitudeGain = 0.0f;
+                isCameraShaking = false;
+                shakeTimer = maxShakeTime;
+            }
+        }
     }
 
     private void _LookInFront()
@@ -214,7 +242,11 @@ public class PlayerBehaviour : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            TakeDamage(15);
+            // delay bullet firing 
+            if (Time.frameCount % 20 == 0)
+            {
+                TakeDamage(5);
+            }
         }
     }
 
@@ -246,6 +278,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         //play hit sound here
         PlayHitSound();
+        ShakeCamera();
 
         if (health <= 0)
         {
@@ -264,5 +297,12 @@ public class PlayerBehaviour : MonoBehaviour
     {
         var randomHitSound = hitSounds[Random.Range(0, 3)];
         randomHitSound.Play();
+    }
+
+    private void ShakeCamera()
+    {
+        perlin.m_AmplitudeGain = shakeIntensity;
+
+        isCameraShaking = true;
     }
 }

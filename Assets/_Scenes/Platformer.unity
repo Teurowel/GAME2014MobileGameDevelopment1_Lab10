@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 121076934}
   - component: {fileID: 121076936}
   - component: {fileID: 121076935}
+  - component: {fileID: 121076937}
   m_Layer: 0
   m_Name: cm
   m_TagString: Untagged
@@ -210,6 +211,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &121076937
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121076933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
+  m_PivotOffset: {x: 0, y: 0, z: 0}
+  m_AmplitudeGain: 0
+  m_FrequencyGain: 5
+  mNoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!114 &166175434 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1143666446871949210, guid: 23d3f5859519ef4489fe8416d4719108, type: 3}
@@ -1652,7 +1670,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 717745441}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.192, y: -0.666, z: 0}
+  m_LocalPosition: {x: 2.192, y: -0.907, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2013978526}
@@ -12376,7 +12394,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &2013978529
 MonoBehaviour:
@@ -12409,7 +12427,7 @@ MonoBehaviour:
     m_Bits: 1280
   rampDirection: 0
   onRamp: 0
-  rampForceSensitivity: 0.6
+  rampForceSensitivity: 1
   health: 100
   lives: 3
   healthBar: {fileID: 166175434}
@@ -12420,6 +12438,12 @@ MonoBehaviour:
   - {fileID: 2013978533}
   - {fileID: 2013978532}
   dieSound: {fileID: 2013978535}
+  vcam1: {fileID: 0}
+  perlin: {fileID: 0}
+  maxShakeTime: 0.3
+  shakeTimer: 0.3
+  shakeIntensity: 5
+  isCameraShaking: 0
 --- !u!61 &2013978530
 BoxCollider2D:
   m_ObjectHideFlags: 0
